@@ -630,4 +630,13 @@ function animate() {
       const orbitAngle = (scrollY / maxScroll) * Math.PI * 0.5;
       const radius = 12;
       
-      camer
+      cameraHero.position.x = Math.sin(orbitAngle) * radius + (mouseX * 0.6);
+      cameraHero.position.z = Math.cos(orbitAngle) * radius;
+      cameraHero.position.y = -mouseY * 0.6; // subtle mouse shift
+      
+      cameraHero.lookAt(0, 0.2, 0);
+    }
+    
+    rendererHero.render(sceneHero, cameraHero);
+  }
+}
