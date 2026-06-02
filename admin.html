@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yogamrit Admin Console | Hidden Dashboard</title>
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    /* Admin specific layout adjustments */
+    body {
+      background: linear-gradient(180deg, #05060a 0%, #0d0f1a 100%) !important;
+      padding: 40px 5%;
+    }
+    
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: none; /* hidden until authenticated */
+    }
+    
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      border-bottom: 1px solid rgba(255, 153, 51, 0.2);
+      padding-bottom: 20px;
+    }
+    
+    .admin-header h1 span {
+      color: var(--color-saffron);
+    }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 40px;
+    }
+    
+    /* Sidebar Navigation */
+    .admin-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .sidebar-btn {
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--color-text-secondary);
+      border-radius: var(--radius-sm);
+      text-align: left;
+      cursor: pointer;
+      font-weight: 600;
+      transition: var(--transition-smooth);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .sidebar-btn:hover, .sidebar-btn.active {
+      background: rgba(255, 153, 51, 0.12);
+      border-color: var(--color-saffron);
+      color: var(--color-white);
+      box-shadow: var(--glow-saffron);
+    }
+    
+    /* Main Content Area */
+    .admin-panel {
+      display: none;
+      padding: 40px;
+    }
+    
+    .admin-panel.active {
+      display: block;
+    }
+    
+    .panel-title {
+      font-size: 1.8rem;
+      margin-bottom: 30px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 10px;
+      color: var(--color-white);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .panel-title i {
+      color: var(--color-saffron);
+    }
+    
+    /* Elegant Form Styling */
+    .form-group {
+      margin-bottom: 25px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--color-text-primary);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 12px 18px;
+      background: rgba(6, 7, 10, 0.6);
+      border: 1px solid rgba(255, 153, 51, 0.25);
+      border-radius: var(--radius-sm);
+      color: var(--color-text-primary);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      transition: var(--transition-fast);
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--color-saffron);
+      box-shadow: var(--glow-saffron);
+      background: rgba(6, 7, 10, 0.8);
+    }
+    
+    textarea.form-control {
+      resize: vertical;
+      min-height: 120px;
+    }
+    
+    /* Auth Modal overlay */
+    .auth-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(4, 5, 8, 0.98);
+      backdrop-filter: blur(15px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      padding: 50px 40px;
+      margin: 0 20px;
+      text-align: center;
+    }
+    
+    .auth-logo {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 20px;
+    }
+    
+    /* Items grid lists (reviews/gallery list in dashboard) */
+    .dashboard-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .dashboard-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-sm);
+    }
+    
+    .item-info h5 {
+      font-size: 1.1rem;
+      color: var(--color-white);
+      margin-bottom: 5px;
+    }
+    
+    .item-info p {
+      color: var(--color-text-secondary);
+      font-size: 0.9rem;
+    }
+    
+    .item-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .btn-action {
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      border: none;
+      transition: var(--transition-fast);
+      color: white;
+    }
+    
+    .btn-approve { background: #25d366; }
+    .btn-approve:hover { background: #1ebd54; box-shadow: 0 0 15px rgba(37, 211, 102, 0.3); }
+    
+    .btn-reject { background: #ff4757; }
+    .btn-reject:hover { background: #e03d4b; box-shadow: 0 0 15px rgba(255, 71, 87, 0.3); }
+    
+    /* Image preview helper */
+    .img-preview {
+      width: 80px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
+      border: var(--glass-border);
+    }
+    
+    /* Dynamic success toasts */
+    .toast-box {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--bg-card);
+      backdrop-filter: blur(10px);
+      border: 1px solid #25d366;
+      padding: 15px 25px;
+      border-radius: var(--radius-sm);
+      color: var(--color-white);
+      font-weight: 600;
+      box-shadow: 0 5px 20px rgba(37, 211, 102, 0.15);
+      z-index: 10000;
+      display: none;
+      animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    /* Responsive Forms and Lists */
+    .timeline-form-grid {
+      margin-bottom: 30px;
+      display: grid;
+      grid-template-columns: 120px 2fr 3fr auto auto;
+      gap: 15px;
+      align-items: flex-end;
+    }
+    
+    .gallery-form-grid {
+      display: grid;
+      grid-template-columns: 2fr 1.5fr 1fr;
+      gap: 20px;
+      margin-bottom: 15px;
+    }
+    
+    .category-form-grid {
+      display: grid;
+      grid-template-columns: 3fr auto;
+      gap: 20px;
+      align-items: flex-end;
+    }
+    
+    /* Responsive Media Queries */
+    @media (max-width: 991px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+      }
+      
+      .admin-sidebar {
+        flex-direction: row !important;
+        overflow-x: auto;
+        padding-bottom: 12px;
+        -webkit-overflow-scrolling: touch;
+        gap: 10px !important;
+      }
+      
+      .sidebar-btn {
+        white-space: nowrap;
+        padding: 10px 16px !important;
+        font-size: 0.9rem;
+      }
+      
+      .admin-panel {
+        padding: 25px 20px !important;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        padding: 20px 10px !important;
+      }
+      
+      .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+      }
+      
+      .admin-header h1 {
+        font-size: 1.6rem;
+      }
+      
+      .admin-header p {
+        font-size: 0.8rem;
+      }
+      
+      #logout-btn {
+        width: 100%;
+        text-align: center;
+      }
+      
+      .dashboard-item {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 15px !important;
+      }
+      
+      .item-actions {
+        width: 100% !important;
+        justify-content: flex-start !important;
+        gap: 10px;
+      }
+      
+      .item-actions .btn-action {
+        flex: 1;
+        text-align: center;
+      }
+      
+      .timeline-form-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      
+      .timeline-form-grid .form-group {
+        margin-bottom: 0;
+      }
+      
+      .timeline-form-grid .btn {
+        width: 100%;
+        padding: 12px;
+      }
+      
+      .gallery-form-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      
+      .category-form-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      
+      .category-form-grid .btn {
+        width: 100%;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .auth-card {
+        padding: 30px 20px;
+      }
+      
+      .panel-title {
+        font-size: 1.4rem;
+        margin-bottom: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Auth Gate overlay -->
+  <div class="auth-overlay" id="auth-gate">
+    <div class="auth-card glass-panel">
+      <img src="images/logo.png" class="auth-logo" alt="Yogamrit logo">
+      <h2 style="margin-bottom: 10px; color: white;">Console Login</h2>
+      <p style="color: var(--color-text-secondary); font-size: 0.9rem; margin-bottom: 30px;">Protected administrative gateway</p>
+      
+      <div id="login-error" style="color: #ff4757; margin-bottom: 15px; display: none; font-size: 0.9rem; font-weight: 600;">
+        <i class="fa-solid fa-circle-exclamation"></i> Invalid credentials.
+      </div>
+      
+      <div class="form-group" style="text-align: left;">
+        <label for="username">Admin Username</label>
+        <input type="text" class="form-control" id="username" placeholder="Enter username">
+      </div>
+      
+      <div class="form-group" style="text-align: left; margin-bottom: 35px;">
+        <label for="password">Security Password</label>
+        <input type="password" class="form-control" id="password" placeholder="Enter security password">
+      </div>
+      
+      <button class="btn btn-primary" id="login-btn" style="width: 100%;">Sign In Console</button>
+    </div>
+  </div>
+
+  <!-- Main Admin Workspace -->
+  <div class="admin-container" id="admin-workspace">
+    <div class="admin-header">
+      <div>
+        <h1>YOGAMRIT <span>ADMIN CONSOLE</span></h1>
+        <p style="color: var(--color-text-secondary); font-size: 0.9rem; margin-top: 5px;">Configure your dynamic homepages, testimonials, and gallery photos</p>
+      </div>
+      <button class="btn btn-secondary" id="logout-btn" style="padding: 10px 20px; font-size: 0.85rem;"><i class="fa-solid fa-right-from-bracket" style="margin-right: 8px;"></i> Sign Out</button>
+    </div>
+    
+    <div class="dashboard-grid">
+      <!-- Sidebar navigation panel -->
+      <div class="admin-sidebar">
+        <button class="sidebar-btn active" data-target="panel-homepage"><i class="fa-solid fa-house"></i> Home Settings</button>
+        <button class="sidebar-btn" data-target="panel-coach"><i class="fa-solid fa-user-tie"></i> Coach Biography</button>
+        <button class="sidebar-btn" data-target="panel-services"><i class="fa-solid fa-award"></i> Service Batches</button>
+        <button class="sidebar-btn" data-target="panel-gallery"><i class="fa-solid fa-images"></i> Masonry Photos</button>
+        <button class="sidebar-btn" id="review-nav-btn" data-target="panel-reviews"><i class="fa-solid fa-comments"></i> User Reviews <span id="pending-badge" style="background:#ff9933; color:white; font-size:0.75rem; padding:2px 6px; border-radius:50%; margin-left:5px; display:none;">0</span></button>
+        <button class="sidebar-btn" data-target="panel-videos"><i class="fa-solid fa-video"></i> YouTube Videos</button>
+      </div>
+      
+      <!-- Content panels glass pane -->
+      <div class="admin-content glass-panel" style="min-height: 550px;">
+        
+        <!-- 1. HOMEPAGE PANEL -->
+        <div class="admin-panel active" id="panel-homepage">
+          <h2 class="panel-title"><i class="fa-solid fa-house"></i> Homepage Core Settings</h2>
+          <form id="form-homepage">
+            <div class="form-group">
+              <label for="input-tagline">Center Tagline</label>
+              <input type="text" class="form-control" id="input-tagline">
+            </div>
+            <div class="form-group">
+              <label for="input-phone">Primary Hotline Number</label>
+              <input type="text" class="form-control" id="input-phone">
+            </div>
+            <div class="form-group">
+              <label for="input-support">Support Hotline Number</label>
+              <input type="text" class="form-control" id="input-support">
+            </div>
+            <div class="form-group">
+              <label for="input-address">Academy Address</label>
+              <textarea class="form-control" id="input-address"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="input-email">Primary Email</label>
+              <input type="email" class="form-control" id="input-email">
+            </div>
+            <div class="form-group">
+              <label for="input-about-file">Change Why Choose Section Photo (Base64)</label>
+              <input type="file" class="form-control" id="input-about-file" accept="image/*">
+              <p style="color: var(--color-text-secondary); font-size: 0.8rem; margin-top: 5px;">Upload a new image file to replace the primary Why Choose section photo.</p>
+            </div>
+            <div class="form-group">
+              <label for="select-about-align">Why Choose Photo Vertical Crop Alignment</label>
+              <select class="form-control" id="select-about-align">
+                <option value="center">Center (Default crop)</option>
+                <option value="top">Top</option>
+                <option value="15%">Upper Center (15%)</option>
+                <option value="30%">Upper Center (30%)</option>
+                <option value="bottom">Bottom</option>
+              </select>
+              <p style="color: var(--color-text-secondary); font-size: 0.8rem; margin-top: 5px;">Adjust the cropping focal point for the main feature photo.</p>
+            </div>
+            <!-- Achievements Stats & Highlights Edit Fields -->
+            <h3 style="font-size: 1.2rem; color: white; margin-top: 30px; margin-bottom: 15px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px;">
+              <i class="fa-solid fa-trophy" style="color: var(--color-saffron); margin-right: 10px;"></i> Achievements Statistics
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+              <div class="form-group" style="margin: 0;">
+                <label for="input-stat-medals">National Medals Count</label>
+                <input type="text" class="form-control" id="input-stat-medals">
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label for="input-stat-students">Students Trained Count</label>
+                <input type="text" class="form-control" id="input-stat-students">
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label for="input-stat-years">Years of Practice Count</label>
+                <input type="text" class="form-control" id="input-stat-years">
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label for="input-stat-competitors">Competitors Prepared Count</label>
+                <input type="text" class="form-control" id="input-stat-competitors">
+              </div>
+            </div>
+
+            <h3 style="font-size: 1.2rem; color: white; margin-top: 25px; margin-bottom: 15px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px;">
+              <i class="fa-solid fa-award" style="color: var(--color-saffron); margin-right: 10px;"></i> Championship Highlights Card 1
+            </h3>
+            <div class="form-group">
+              <label for="input-highlight-title-1">Highlight 1 Title</label>
+              <input type="text" class="form-control" id="input-highlight-title-1">
+            </div>
+            <div class="form-group">
+              <label for="input-highlight-desc-1">Highlight 1 Description</label>
+              <textarea class="form-control" id="input-highlight-desc-1" rows="3"></textarea>
+            </div>
+
+            <h3 style="font-size: 1.2rem; color: white; margin-top: 25px; margin-bottom: 15px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px;">
+              <i class="fa-solid fa-award" style="color: var(--color-saffron); margin-right: 10px;"></i> Championship Highlights Card 2
+            </h3>
+            <div class="form-group">
+              <label for="input-highlight-title-2">Highlight 2 Title</label>
+              <input type="text" class="form-control" id="input-highlight-title-2">
+            </div>
+            <div class="form-group" style="margin-bottom: 30px;">
+              <label for="input-highlight-desc-2">Highlight 2 Description</label>
+              <textarea class="form-control" id="input-highlight-desc-2" rows="3"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-bottom: 20px;">Save Info Settings</button>
+          </form>
+
+          <!-- Dynamic Security Credentials Form -->
+          <h3 style="font-size: 1.4rem; color: white; margin-bottom: 20px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 30px;"><i class="fa-solid fa-lock" style="color: var(--color-saffron); margin-right: 10px;"></i> Change Admin Login Credentials</h3>
+          <form id="form-admin-creds" style="margin-top: 20px;">
+            <div class="form-group">
+              <label for="input-admin-username">New Admin Username</label>
+              <input type="text" class="form-control" id="input-admin-username" placeholder="e.g. admin" required>
+            </div>
+            <div class="form-group">
+              <label for="input-admin-password">New Security Password</label>
+              <input type="password" class="form-control" id="input-admin-password" placeholder="Enter new password" required>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-key" style="margin-right: 8px;"></i> Update Login Credentials</button>
+          </form>
+        </div>
+        
+        <!-- 2. COACH BIOGRAPHY PANEL -->
+        <div class="admin-panel" id="panel-coach">
+          <h2 class="panel-title"><i class="fa-solid fa-user-tie"></i> Coach Suresh Kumar Showcase</h2>
+          <form id="form-coach">
+            <div class="form-group">
+              <label for="input-coach-name">Coach Full Name</label>
+              <input type="text" class="form-control" id="input-coach-name">
+            </div>
+            <div class="form-group">
+              <label for="input-coach-title">Title / Credentials</label>
+              <input type="text" class="form-control" id="input-coach-title">
+            </div>
+            <div class="form-group">
+              <label for="input-coach-exp">Years of Experience</label>
+              <input type="text" class="form-control" id="input-coach-exp">
+            </div>
+            <div class="form-group">
+              <label for="input-coach-quote">Personal Philosophy Quote</label>
+              <textarea class="form-control" id="input-coach-quote"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="input-coach-file">Upload Biography Photo (Base64)</label>
+              <input type="file" class="form-control" id="input-coach-file" accept="image/*">
+              <p style="color: var(--color-text-secondary); font-size: 0.8rem; margin-top: 5px;">Upload a new image file to replace the current biography photo.</p>
+            </div>
+            <div class="form-group">
+              <label for="select-coach-align">Photo Vertical Crop Alignment</label>
+              <select class="form-control" id="select-coach-align">
+                <option value="top">Top (Recommended - shows face perfectly)</option>
+                <option value="15%">Upper Center (15%)</option>
+                <option value="30%">Upper Center (30%)</option>
+                <option value="center">Center (Default crop)</option>
+                <option value="bottom">Bottom</option>
+              </select>
+              <p style="color: var(--color-text-secondary); font-size: 0.8rem; margin-top: 5px;">Select which vertical area of the photo should remain visible in the cropped rectangle.</p>
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-bottom: 40px;">Save Coach Profile</button>
+          </form>
+          
+          <!-- Coach Timeline Milestones -->
+          <h3 style="font-size: 1.4rem; color: white; margin-bottom: 20px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 30px;">Timeline Milestones Management</h3>
+          <form id="form-timeline" class="timeline-form-grid">
+            <input type="hidden" id="input-time-id" value="">
+            <div class="form-group" style="margin: 0;">
+              <label for="input-time-year">Year</label>
+              <input type="text" class="form-control" id="input-time-year" placeholder="e.g. 2024">
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label for="input-time-title">Milestone Title</label>
+              <input type="text" class="form-control" id="input-time-title" placeholder="Title">
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label for="input-time-desc">Brief Description</label>
+              <input type="text" class="form-control" id="input-time-desc" placeholder="Details">
+            </div>
+            <button type="submit" class="btn btn-primary" id="time-submit-btn" style="padding: 12px 20px;"><i class="fa-solid fa-plus"></i> Add</button>
+            <button type="button" class="btn btn-secondary" id="time-cancel-btn" style="padding: 12px 20px; display: none;">Cancel</button>
+          </form>
+          
+          <div class="dashboard-list" id="timeline-list">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+        
+        <!-- 3. SERVICE BATCHES PANEL -->
+        <div class="admin-panel" id="panel-services">
+          <h2 class="panel-title"><i class="fa-solid fa-award"></i> Service Batches Content Editor</h2>
+          <div class="form-group">
+            <label for="select-service">Select Service Card to Edit</label>
+            <select class="form-control" id="select-service">
+              <!-- Injected via JS -->
+            </select>
+          </div>
+          <form id="form-service" style="display: none;">
+            <div class="form-group">
+              <label for="input-service-title">Program Title</label>
+              <input type="text" class="form-control" id="input-service-title">
+            </div>
+            <div class="form-group">
+              <label for="input-service-desc">Detailed Description</label>
+              <textarea class="form-control" id="input-service-desc"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Program Card</button>
+          </form>
+        </div>
+        
+        <!-- 4. GALLERY MEDIA PANEL -->
+        <div class="admin-panel" id="panel-gallery">
+          <h2 class="panel-title"><i class="fa-solid fa-images"></i> Masonry Gallery & Video Showcase</h2>
+          
+          <!-- Add/Edit photo form -->
+          <form id="form-gallery" style="margin-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 30px;">
+            <h3 style="font-size: 1.2rem; color: white; margin-bottom: 15px;" id="gal-form-title">Add New Photo Card</h3>
+            <input type="hidden" id="input-gal-id" value="">
+            <div class="gallery-form-grid">
+              <div class="form-group" style="margin: 0;">
+                <label for="input-gal-title">Photo Title</label>
+                <input type="text" class="form-control" id="input-gal-title" placeholder="splits stretch" required>
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label for="input-gal-caption">Card Caption</label>
+                <input type="text" class="form-control" id="input-gal-caption" placeholder="Splits Practice alignment" required>
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label for="select-gal-cat">Category</label>
+                <select class="form-control" id="select-gal-cat">
+                  <!-- Injected dynamically via JS -->
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="input-gal-file">Upload Image File (Base64)</label>
+              <input type="file" class="form-control" id="input-gal-file" accept="image/*" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-cloud-arrow-up" style="margin-right: 8px;"></i> Upload & Publish Photo</button>
+            <button type="button" class="btn btn-secondary" id="gal-cancel-btn" style="display: none; margin-left: 10px;">Cancel Edit</button>
+          </form>
+
+          <!-- Create custom category form -->
+          <form id="form-category" style="margin-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 30px;">
+            <h3 style="font-size: 1.2rem; color: white; margin-bottom: 15px;"><i class="fa-solid fa-folder-plus" style="color:var(--color-saffron); margin-right: 10px;"></i> Create Custom Category</h3>
+            <div class="category-form-grid">
+              <div class="form-group" style="margin: 0;">
+                <label for="input-cat-name">Category Name</label>
+                <input type="text" class="form-control" id="input-cat-name" placeholder="e.g. Events & Celebrations" required>
+              </div>
+              <button type="submit" class="btn btn-primary" style="padding: 12px 20px;"><i class="fa-solid fa-plus"></i> Create Category</button>
+            </div>
+          </form>
+          
+          <h3 style="font-size: 1.2rem; color: white; margin-bottom: 20px;">Current Gallery Showcase</h3>
+          <div class="dashboard-list" id="gallery-list">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+        
+        <!-- 5. USER REVIEWS PORTAL MODERATION -->
+        <div class="admin-panel" id="panel-reviews">
+          <h2 class="panel-title"><i class="fa-solid fa-comments"></i> Review Submission & Moderation</h2>
+          
+          <h3 style="font-size: 1.2rem; color: var(--color-saffron); margin-bottom: 15px;"><i class="fa-solid fa-clock-rotate-left"></i> Moderation Queue (Pending Approval)</h3>
+          <div class="dashboard-list" id="pending-reviews-list" style="margin-bottom: 40px;">
+            <!-- Injected via JS -->
+          </div>
+          
+          <h3 style="font-size: 1.2rem; color: white; margin-bottom: 15px;"><i class="fa-solid fa-check-double"></i> Published Testimonials (On Live Site)</h3>
+          <div class="dashboard-list" id="approved-reviews-list">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+        
+        <!-- 6. YOUTUBE VIDEOS PANEL -->
+        <div class="admin-panel" id="panel-videos">
+          <h2 class="panel-title"><i class="fa-solid fa-video"></i> YouTube Video Showcase</h2>
+          
+          <!-- Add/Edit YouTube Video form -->
+          <form id="form-videos" style="margin-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 30px;">
+            <h3 style="font-size: 1.2rem; color: white; margin-bottom: 15px;" id="vid-form-title">Add New YouTube Video</h3>
+            <input type="hidden" id="input-vid-id" value="">
+            
+            <div class="form-group">
+              <label for="input-vid-title">Video Title</label>
+              <input type="text" class="form-control" id="input-vid-title" placeholder="e.g. Advanced Backbend Pose Masterclass" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="input-vid-code">YouTube Video ID (or Full URL)</label>
+              <input type="text" class="form-control" id="input-vid-code" placeholder="e.g. c8hjhRqItyk or https://www.youtube.com/watch?v=c8hjhRqItyk" required>
+              <p style="color: var(--color-text-secondary); font-size: 0.8rem; margin-top: 5px;">
+                You can paste the full YouTube link, share link, or just the 11-character video ID code.
+              </p>
+            </div>
+
+            <div class="form-group">
+              <label for="input-vid-desc">Short Description</label>
+              <textarea class="form-control" id="input-vid-desc" placeholder="Briefly describe the highlights of this video session..." rows="3" required></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" id="vid-submit-btn"><i class="fa-solid fa-cloud-arrow-up" style="margin-right: 8px;"></i> Publish YouTube Video</button>
+            <button type="button" class="btn btn-secondary" id="vid-cancel-btn" style="display: none; margin-left: 10px;">Cancel Edit</button>
+          </form>
+          
+          <h3 style="font-size: 1.2rem; color: white; margin-bottom: 20px;">Current Published Videos</h3>
+          <div class="dashboard-list" id="videos-list">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- Dynamic Success Toast Notifications -->
+  <div class="toast-box" id="success-toast">
+    <i class="fa-solid fa-circle-check" style="margin-right: 8px; color: #25d366;"></i> Configuration saved successfully!
+  </div>
+
+  <!-- CDN Script Integrations -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/db.js?v=1.0.3"></script>
+  
+  <script>
+    // =========================================
+    // ADMIN DASHBOARD LOGIC ENGINE
+    // =========================================
+    
+    // Auth gate check
+    document.addEventListener("DOMContentLoaded", () => {
+      if (sessionStorage.getItem("admin_authenticated") === "true") {
+        showWorkspace();
+      }
+    });
+    
+    // Login button trigger
+    document.getElementById("login-btn").addEventListener("click", async () => {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      
+      const creds = await dbService.getAdminCreds();
+      
+      // Verification Gate
+      if (user === creds.username && pass === creds.password) {
+        sessionStorage.setItem("admin_authenticated", "true");
+        showWorkspace();
+      } else {
+        const err = document.getElementById("login-error");
+        err.style.display = "block";
+        setTimeout(() => { err.style.opacity = 1; }, 50);
+      }
+    });
+    
+    // Logout trigger
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      sessionStorage.removeItem("admin_authenticated");
+      location.reload();
+    });
+    
+    function showWorkspace() {
+      document.getElementById("auth-gate").style.display = "none";
+      const workspace = document.getElementById("admin-workspace");
+      workspace.style.display = "block";
+      initTabs();
+      loadHomepageForm();
+      loadCoachForm();
+      loadServicesDropdown();
+      loadGalleryCategories(); // Dynamically load categories
+      loadGalleryList();
+      loadVideosList();
+      loadReviewsQueue();
+    }
+    
+    // Dynamically load gallery categories into select option list
+    async function loadGalleryCategories() {
+      const select = document.getElementById("select-gal-cat");
+      if (!select) return;
+      select.innerHTML = "";
+      
+      const categories = await dbService.getGalleryCategories();
+      categories.forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat.id;
+        opt.textContent = cat.name;
+        select.appendChild(opt);
+      });
+    }
+
+    // Smooth custom Toast alert with support for error states
+    function showToast(message = "Configuration saved successfully!", type = "success") {
+      const toast = document.getElementById("success-toast");
+      if (type === "error") {
+        toast.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="margin-right: 8px; color: #ff4757;"></i> ${message}`;
+        toast.style.borderColor = "#ff4757";
+        toast.style.boxShadow = "0 5px 20px rgba(255, 71, 87, 0.15)";
+      } else {
+        toast.innerHTML = `<i class="fa-solid fa-circle-check" style="margin-right: 8px; color: #25d366;"></i> ${message}`;
+        toast.style.borderColor = "#25d366";
+        toast.style.boxShadow = "0 5px 20px rgba(37, 211, 102, 0.15)";
+      }
+      toast.style.display = "block";
+      setTimeout(() => {
+        toast.style.display = "none";
+      }, 3500);
+    }
+    
+    // Dashboard sidebar tab panels toggling
+    function initTabs() {
+      const sidebarButtons = document.querySelectorAll(".sidebar-btn");
+      const panels = document.querySelectorAll(".admin-panel");
+      
+      sidebarButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          sidebarButtons.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          
+          const target = btn.getAttribute("data-target");
+          panels.forEach(p => {
+            if (p.id === target) {
+              p.classList.add("active");
+            } else {
+              p.classList.remove("active");
+            }
+          });
+        });
+      });
+    }
+    
+      // --- 1. HOMEPAGE SETTINGS FORM ---
+    async function loadHomepageForm() {
+      const info = await dbService.getHomepage();
+      document.getElementById("input-tagline").value = info.tagline;
+      document.getElementById("input-phone").value = info.phone_primary;
+      document.getElementById("input-support").value = info.phone_support;
+      document.getElementById("input-address").value = info.address;
+      document.getElementById("input-email").value = info.email;
+      document.getElementById("select-about-align").value = info.about_image_align || "center";
+      
+      // Load Achievements statistics & highlights
+      document.getElementById("input-stat-medals").value = info.stat_medals || "15";
+      document.getElementById("input-stat-students").value = info.stat_students || "2000";
+      document.getElementById("input-stat-years").value = info.stat_years || "12";
+      document.getElementById("input-stat-competitors").value = info.stat_competitors || "150";
+      
+      document.getElementById("input-highlight-title-1").value = info.highlight_title_1 || "";
+      document.getElementById("input-highlight-desc-1").value = info.highlight_desc_1 || "";
+      document.getElementById("input-highlight-title-2").value = info.highlight_title_2 || "";
+      document.getElementById("input-highlight-desc-2").value = info.highlight_desc_2 || "";
+      
+      // Load dynamic credentials
+      const creds = await dbService.getAdminCreds();
+      document.getElementById("input-admin-username").value = creds.username;
+      document.getElementById("input-admin-password").value = creds.password;
+    }
+    
+    document.getElementById("form-homepage").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const tagline = document.getElementById("input-tagline").value;
+      const phone_primary = document.getElementById("input-phone").value;
+      const phone_support = document.getElementById("input-support").value;
+      const address = document.getElementById("input-address").value;
+      const email = document.getElementById("input-email").value;
+      const about_image_align = document.getElementById("select-about-align").value;
+      
+      const stat_medals = document.getElementById("input-stat-medals").value;
+      const stat_students = document.getElementById("input-stat-students").value;
+      const stat_years = document.getElementById("input-stat-years").value;
+      const stat_competitors = document.getElementById("input-stat-competitors").value;
+      
+      const highlight_title_1 = document.getElementById("input-highlight-title-1").value;
+      const highlight_desc_1 = document.getElementById("input-highlight-desc-1").value;
+      const highlight_title_2 = document.getElementById("input-highlight-title-2").value;
+      const highlight_desc_2 = document.getElementById("input-highlight-desc-2").value;
+      
+      const fileInput = document.getElementById("input-about-file");
+      const file = fileInput.files[0];
+      
+      const updateData = { 
+        tagline, 
+        phone_primary, 
+        phone_support, 
+        address, 
+        email, 
+        about_image_align,
+        stat_medals,
+        stat_students,
+        stat_years,
+        stat_competitors,
+        highlight_title_1,
+        highlight_desc_1,
+        highlight_title_2,
+        highlight_desc_2
+      };
+      
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          updateData.about_image = reader.result;
+          await dbService.updateHomepage(updateData);
+          showToast("Homepage configurations and photo updated!");
+          fileInput.value = "";
+        };
+        reader.readAsDataURL(file);
+      } else {
+        await dbService.updateHomepage(updateData);
+        showToast("Homepage configurations updated!");
+      }
+    });
+
+    document.getElementById("form-admin-creds").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const user = document.getElementById("input-admin-username").value;
+      const pass = document.getElementById("input-admin-password").value;
+      
+      await dbService.updateAdminCreds(user, pass);
+      showToast("Security credentials updated! Please use these next time you log in.");
+    });
+    
+    // --- 2. COACH PROFILE FORM ---
+    async function loadCoachForm() {
+      const coach = await dbService.getCoach();
+      document.getElementById("input-coach-name").value = coach.name;
+      document.getElementById("input-coach-title").value = coach.title;
+      document.getElementById("input-coach-exp").value = coach.experience;
+      document.getElementById("input-coach-quote").value = coach.quote;
+      document.getElementById("select-coach-align").value = coach.image_align || "top";
+      
+      // Load milestones timeline
+      loadTimelineList();
+    }
+    
+    async function loadTimelineList() {
+      const listContainer = document.getElementById("timeline-list");
+      listContainer.innerHTML = "";
+      
+      const timeline = await dbService.getTimeline();
+      timeline.forEach(item => {
+        const el = document.createElement("div");
+        el.className = "dashboard-item";
+        const titleSafe = (item.title || "").replace(/"/g, "&quot;");
+        const descSafe = (item.desc || "").replace(/"/g, "&quot;");
+        el.innerHTML = `
+          <div class="item-info">
+            <h5>${item.year} - ${item.title || ""}</h5>
+            <p>${item.desc || ""}</p>
+          </div>
+          <div class="item-actions">
+            <button class="btn-action btn-approve edit-time-btn" data-id="${item.id}" data-year="${item.year}" data-title="${titleSafe}" data-desc="${descSafe}"><i class="fa-solid fa-pen"></i> Edit</button>
+            <button class="btn-action btn-reject delete-time-btn" data-id="${item.id}"><i class="fa-solid fa-trash"></i> Delete</button>
+          </div>
+        `;
+        listContainer.appendChild(el);
+      });
+      
+      // Bind delete triggers
+      document.querySelectorAll(".delete-time-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          await dbService.deleteTimelineItem(id);
+          showToast("Milestone timeline deleted!");
+          resetTimelineForm();
+          loadTimelineList();
+        });
+      });
+
+      // Bind edit triggers
+      document.querySelectorAll(".edit-time-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-id");
+          const year = btn.getAttribute("data-year");
+          const title = btn.getAttribute("data-title");
+          const desc = btn.getAttribute("data-desc");
+          
+          document.getElementById("input-time-id").value = id;
+          document.getElementById("input-time-year").value = year;
+          document.getElementById("input-time-title").value = title;
+          document.getElementById("input-time-desc").value = desc;
+          
+          const submitBtn = document.getElementById("time-submit-btn");
+          submitBtn.innerHTML = `<i class="fa-solid fa-save"></i> Update`;
+          document.getElementById("time-cancel-btn").style.display = "inline-block";
+          
+          document.getElementById("form-timeline").scrollIntoView({ behavior: 'smooth' });
+        });
+      });
+    }
+    
+    // Add/Update timeline milestone
+    document.getElementById("form-timeline").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("input-time-id").value;
+      const year = document.getElementById("input-time-year").value;
+      const title = document.getElementById("input-time-title").value;
+      const desc = document.getElementById("input-time-desc").value;
+      
+      if (!year || !title || !desc) return;
+      
+      if (id) {
+        await dbService.updateTimelineItem(id, year, title, desc);
+        showToast("Milestone timeline successfully updated!");
+      } else {
+        await dbService.addTimelineItem(year, title, desc);
+        showToast("Milestone timeline successfully added!");
+      }
+      
+      resetTimelineForm();
+      loadTimelineList();
+    });
+
+    function resetTimelineForm() {
+      document.getElementById("input-time-id").value = "";
+      document.getElementById("input-time-year").value = "";
+      document.getElementById("input-time-title").value = "";
+      document.getElementById("input-time-desc").value = "";
+      
+      const submitBtn = document.getElementById("time-submit-btn");
+      submitBtn.innerHTML = `<i class="fa-solid fa-plus"></i> Add`;
+      document.getElementById("time-cancel-btn").style.display = "none";
+    }
+
+    document.getElementById("time-cancel-btn").addEventListener("click", resetTimelineForm);
+    
+    document.getElementById("form-coach").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("input-coach-name").value;
+      const title = document.getElementById("input-coach-title").value;
+      const experience = document.getElementById("input-coach-exp").value;
+      const quote = document.getElementById("input-coach-quote").value;
+      const image_align = document.getElementById("select-coach-align").value;
+      
+      const fileInput = document.getElementById("input-coach-file");
+      const file = fileInput.files[0];
+      
+      const updateData = { name, title, experience, quote, image_align };
+      
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          updateData.image = reader.result;
+          await dbService.updateCoach(updateData);
+          showToast("Coach profile and biography photo updated!");
+          fileInput.value = "";
+        };
+        reader.readAsDataURL(file);
+      } else {
+        await dbService.updateCoach(updateData);
+        showToast("Coach profile updated!");
+      }
+    });
+    
+    // --- 3. SERVICES CARD FORM ---
+    async function loadServicesDropdown() {
+      const select = document.getElementById("select-service");
+      select.innerHTML = '<option value="">-- Choose Card to Edit --</option>';
+      
+      const services = await dbService.getServices();
+      services.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s.id;
+        opt.textContent = `${s.id}. ${s.title}`;
+        select.appendChild(opt);
+      });
+    }
+    
+    // Handle dropdown selection
+    document.getElementById("select-service").addEventListener("change", async (e) => {
+      const id = e.target.value;
+      const form = document.getElementById("form-service");
+      
+      if (!id) {
+        form.style.display = "none";
+        return;
+      }
+      
+      const services = await dbService.getServices();
+      const selected = services.find(s => s.id === parseInt(id));
+      
+      if (selected) {
+        document.getElementById("input-service-title").value = selected.title;
+        document.getElementById("input-service-desc").value = selected.desc;
+        form.style.display = "block";
+      }
+    });
+    
+    document.getElementById("form-service").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("select-service").value;
+      const title = document.getElementById("input-service-title").value;
+      const desc = document.getElementById("input-service-desc").value;
+      
+      await dbService.updateService(id, title, desc);
+      showToast("Service program updated successfully!");
+      loadServicesDropdown();
+      document.getElementById("form-service").style.display = "none";
+    });
+    
+    // --- 4. GALLERY MANAGER ---
+    async function loadGalleryList() {
+      const listContainer = document.getElementById("gallery-list");
+      listContainer.innerHTML = "";
+      
+      const gallery = await dbService.getGallery();
+      gallery.forEach(item => {
+        const el = document.createElement("div");
+        el.className = "dashboard-item";
+        const titleSafe = (item.title || "").replace(/"/g, "&quot;");
+        const captionSafe = (item.caption || "").replace(/"/g, "&quot;");
+        el.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 20px;">
+            <img src="${item.src}" class="img-preview" alt="Preview">
+            <div class="item-info">
+              <h5>${item.title || ""}</h5>
+              <p>Category: <strong>${item.category || ""}</strong> - ${item.caption || ""}</p>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="btn-action btn-approve edit-gal-btn" data-id="${item.id}" data-title="${titleSafe}" data-caption="${captionSafe}" data-category="${item.category}"><i class="fa-solid fa-pen"></i> Edit</button>
+            <button class="btn-action btn-reject delete-gal-btn" data-id="${item.id}"><i class="fa-solid fa-trash"></i> Remove</button>
+          </div>
+        `;
+        listContainer.appendChild(el);
+      });
+      
+      document.querySelectorAll(".delete-gal-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          await dbService.deleteGalleryItem(id);
+          showToast("Photo card removed from gallery!");
+          resetGalleryForm();
+          loadGalleryList();
+        });
+      });
+
+      // Bind edit triggers
+      document.querySelectorAll(".edit-gal-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-id");
+          const title = btn.getAttribute("data-title");
+          const caption = btn.getAttribute("data-caption");
+          const category = btn.getAttribute("data-category");
+          
+          document.getElementById("input-gal-id").value = id;
+          document.getElementById("input-gal-title").value = title;
+          document.getElementById("input-gal-caption").value = caption;
+          document.getElementById("select-gal-cat").value = category;
+          
+          document.getElementById("gal-form-title").textContent = "Edit Existing Photo Card";
+          
+          // Make file optional
+          const fileInput = document.getElementById("input-gal-file");
+          fileInput.required = false;
+          fileInput.previousElementSibling.textContent = "Upload New Image File (Optional - leave blank to keep current image)";
+          
+          const submitBtn = document.querySelector("#form-gallery button[type='submit']");
+          submitBtn.innerHTML = `<i class="fa-solid fa-save"></i> Update Photo Card`;
+          document.getElementById("gal-cancel-btn").style.display = "inline-block";
+          
+          document.getElementById("form-gallery").scrollIntoView({ behavior: 'smooth' });
+        });
+      });
+    }
+    
+    // Upload or Update photo card
+    document.getElementById("form-gallery").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("input-gal-id").value;
+      const title = document.getElementById("input-gal-title").value;
+      const caption = document.getElementById("input-gal-caption").value;
+      const category = document.getElementById("select-gal-cat").value;
+      const fileInput = document.getElementById("input-gal-file");
+      
+      const file = fileInput.files[0];
+      
+      if (id) {
+        // Edit Mode Flow
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = async () => {
+            await dbService.updateGalleryItem(id, title, caption, category, reader.result);
+            showToast("Gallery card successfully updated!");
+            resetGalleryForm();
+            loadGalleryList();
+          };
+          reader.readAsDataURL(file);
+        } else {
+          await dbService.updateGalleryItem(id, title, caption, category);
+          showToast("Gallery card successfully updated!");
+          resetGalleryForm();
+          loadGalleryList();
+        }
+      } else {
+        // Add Mode Flow
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async () => {
+          await dbService.addGalleryItem(reader.result, title, caption, category);
+          showToast("Dynamic photo card published!");
+          resetGalleryForm();
+          loadGalleryList();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function resetGalleryForm() {
+      document.getElementById("input-gal-id").value = "";
+      document.getElementById("input-gal-title").value = "";
+      document.getElementById("input-gal-caption").value = "";
+      document.getElementById("gal-form-title").textContent = "Add New Photo Card";
+      
+      const fileInput = document.getElementById("input-gal-file");
+      fileInput.value = "";
+      fileInput.required = true;
+      fileInput.previousElementSibling.textContent = "Upload Image File (Base64)";
+      
+      const submitBtn = document.querySelector("#form-gallery button[type='submit']");
+      submitBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up" style="margin-right: 8px;"></i> Upload & Publish Photo`;
+      document.getElementById("gal-cancel-btn").style.display = "none";
+    }
+
+    document.getElementById("gal-cancel-btn").addEventListener("click", resetGalleryForm);
+
+    // Create dynamic custom category form submit handler
+    document.getElementById("form-category").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nameInput = document.getElementById("input-cat-name");
+      const name = nameInput.value.trim();
+      if (!name) return;
+      
+      const result = await dbService.addGalleryCategory(name);
+      if (result) {
+        showToast(`Category "${name}" created successfully!`);
+        nameInput.value = "";
+        await loadGalleryCategories(); // refresh dynamic select options list
+      } else {
+        showToast("Category name already exists!", "error");
+      }
+    });
+    
+    // --- 5. REVIEWS MODERATION PANEL ---
+    async function loadReviewsQueue() {
+      const pendingList = document.getElementById("pending-reviews-list");
+      const approvedList = document.getElementById("approved-reviews-list");
+      const pendingBadge = document.getElementById("pending-badge");
+      
+      pendingList.innerHTML = "";
+      approvedList.innerHTML = "";
+      
+      const allReviews = await dbService.getReviews(true);
+      
+      const pending = allReviews.filter(r => !r.approved);
+      const approved = allReviews.filter(r => r.approved);
+      
+      // Update badge count
+      if (pending.length > 0) {
+        pendingBadge.textContent = pending.length;
+        pendingBadge.style.display = "inline-block";
+      } else {
+        pendingBadge.style.display = "none";
+      }
+      
+      // Populate pending
+      if (!pending.length) {
+        pendingList.innerHTML = '<p style="color:var(--color-text-secondary); font-style:italic;">No pending reviews awaiting moderation.</p>';
+      } else {
+        pending.forEach(r => {
+          const stars = '<i class="fa-solid fa-star"></i>'.repeat(r.rating) + '<i class="fa-regular fa-star"></i>'.repeat(5 - r.rating);
+          const el = document.createElement("div");
+          el.className = "dashboard-item";
+          el.innerHTML = `
+            <div class="item-info" style="max-width: 70%;">
+              <h5>${r.name} - <span style="color:var(--color-gold);">${stars}</span></h5>
+              <p style="font-style: italic; margin-top:5px;">"${r.text}"</p>
+            </div>
+            <div class="item-actions">
+              <button class="btn-action btn-approve approve-review-btn" data-id="${r.id}"><i class="fa-solid fa-check"></i> Approve</button>
+              <button class="btn-action btn-reject reject-review-btn" data-id="${r.id}"><i class="fa-solid fa-xmark"></i> Reject</button>
+            </div>
+          `;
+          pendingList.appendChild(el);
+        });
+      }
+      
+      // Populate approved
+      approved.forEach(r => {
+        const stars = '<i class="fa-solid fa-star"></i>'.repeat(r.rating) + '<i class="fa-regular fa-star"></i>'.repeat(5 - r.rating);
+        const el = document.createElement("div");
+        el.className = "dashboard-item";
+        el.innerHTML = `
+          <div class="item-info" style="max-width: 75%;">
+            <h5>${r.name} - <span style="color:var(--color-gold);">${stars}</span></h5>
+            <p style="font-style: italic; margin-top:5px;">"${r.text}"</p>
+          </div>
+          <div class="item-actions">
+            <button class="btn-action btn-reject delete-review-btn" data-id="${r.id}"><i class="fa-solid fa-trash"></i> Delete</button>
+          </div>
+        `;
+        approvedList.appendChild(el);
+      });
+      
+      // Bind Moderation actions
+      document.querySelectorAll(".approve-review-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          await dbService.approveReview(id);
+          showToast("Review approved and published live!");
+          loadReviewsQueue();
+        });
+      });
+      
+      document.querySelectorAll(".reject-review-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          await dbService.rejectReview(id);
+          showToast("Review rejected and deleted!");
+          loadReviewsQueue();
+        });
+      });
+      
+      document.querySelectorAll(".delete-review-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          await dbService.deleteReview(id);
+          showToast("Review deleted from live database!");
+          loadReviewsQueue();
+        });
+      });
+    }
+
+    // --- 6. YOUTUBE VIDEOS EDITOR ---
+    async function loadVideosList() {
+      const listContainer = document.getElementById("videos-list");
+      if (!listContainer) return;
+      listContainer.innerHTML = "";
+      
+      const videos = await dbService.getYoutubeVideos();
+      if (!videos.length) {
+        listContainer.innerHTML = `
+          <div style="text-align: center; color: var(--color-text-secondary); padding: 30px; grid-column: 1 / -1;">
+            <p>No YouTube videos published yet. Use the form above to add a video.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      videos.forEach(v => {
+        const el = document.createElement("div");
+        el.className = "dashboard-item";
+        const titleSafe = (v.title || "").replace(/"/g, "&quot;");
+        const descSafe = (v.desc || "").replace(/"/g, "&quot;");
+        el.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 20px;">
+            <div style="position: relative; width: 120px; height: 68px; border-radius: var(--radius-sm); overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;">
+              <img src="https://img.youtube.com/vi/${v.video_id}/0.jpg" style="width: 100%; height: 100%; object-fit: cover;" alt="Thumbnail">
+              <i class="fa-solid fa-play" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: red; font-size: 1.2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));"></i>
+            </div>
+            <div class="item-info">
+              <h5>${v.title || ""}</h5>
+              <p style="margin-top: 5px;">ID: <strong style="color: var(--color-saffron);">${v.video_id || ""}</strong> - ${v.desc || ""}</p>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="btn-action btn-approve edit-vid-btn" data-id="${v.id}" data-videoid="${v.video_id}" data-title="${titleSafe}" data-desc="${descSafe}"><i class="fa-solid fa-pen"></i> Edit</button>
+            <button class="btn-action btn-reject delete-vid-btn" data-id="${v.id}"><i class="fa-solid fa-trash"></i> Remove</button>
+          </div>
+        `;
+        listContainer.appendChild(el);
+      });
+      
+      // Bind delete triggers
+      document.querySelectorAll(".delete-vid-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          await dbService.deleteYoutubeVideo(id);
+          showToast("YouTube video removed from showcase!");
+          resetVideoForm();
+          loadVideosList();
+        });
+      });
+      
+      // Bind edit triggers
+      document.querySelectorAll(".edit-vid-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-id");
+          const video_id = btn.getAttribute("data-videoid");
+          const title = btn.getAttribute("data-title");
+          const desc = btn.getAttribute("data-desc");
+          
+          document.getElementById("input-vid-id").value = id;
+          document.getElementById("input-vid-title").value = title;
+          document.getElementById("input-vid-code").value = video_id;
+          document.getElementById("input-vid-desc").value = desc;
+          
+          document.getElementById("vid-form-title").textContent = "Edit Existing YouTube Video";
+          
+          const submitBtn = document.getElementById("vid-submit-btn");
+          submitBtn.innerHTML = `<i class="fa-solid fa-save"></i> Update YouTube Video`;
+          document.getElementById("vid-cancel-btn").style.display = "inline-block";
+          
+          document.getElementById("form-videos").scrollIntoView({ behavior: 'smooth' });
+        });
+      });
+    }
+    
+    function resetVideoForm() {
+      document.getElementById("input-vid-id").value = "";
+      document.getElementById("input-vid-title").value = "";
+      document.getElementById("input-vid-code").value = "";
+      document.getElementById("input-vid-desc").value = "";
+      
+      document.getElementById("vid-form-title").textContent = "Add New YouTube Video";
+      
+      const submitBtn = document.getElementById("vid-submit-btn");
+      submitBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up" style="margin-right: 8px;"></i> Publish YouTube Video`;
+      document.getElementById("vid-cancel-btn").style.display = "none";
+    }
+    
+    function extractYoutubeId(input) {
+      if (!input) return "";
+      const trimmed = input.trim();
+      
+      // 1. Check for YouTube Shorts format
+      if (trimmed.includes("/shorts/")) {
+        const parts = trimmed.split("/shorts/");
+        if (parts.length > 1) {
+          return parts[1].split(/[?#&]/)[0].substring(0, 11);
+        }
+      }
+      
+      // 2. Check for standard YouTube URL structures
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = trimmed.match(regExp);
+      
+      if (match && match[2].length === 11) {
+        return match[2];
+      }
+      
+      // 3. Safe fallback for raw IDs or truncated entries
+      return trimmed.substring(0, 11);
+    }
+    
+    document.getElementById("vid-cancel-btn").addEventListener("click", resetVideoForm);
+    
+    document.getElementById("form-videos").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("input-vid-id").value;
+      const title = document.getElementById("input-vid-title").value;
+      const rawCode = document.getElementById("input-vid-code").value;
+      const desc = document.getElementById("input-vid-desc").value;
+      
+      const video_id = extractYoutubeId(rawCode);
+      
+      if (video_id.length !== 11) {
+        showToast("Invalid YouTube Video ID. Please enter an 11-character code or full YouTube URL.", "error");
+        return;
+      }
+      
+      if (id) {
+        await dbService.updateYoutubeVideo(id, video_id, title, desc);
+        showToast("YouTube video configuration updated successfully!");
+      } else {
+        await dbService.addYoutubeVideo(video_id, title, desc);
+        showToast("New YouTube video published successfully!");
+      }
+      
+      resetVideoForm();
+      loadVideosList();
+    });
+  </script>
+</body>
+</html>
