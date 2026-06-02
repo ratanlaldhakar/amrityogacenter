@@ -488,4 +488,92 @@ const dbService = {
         if (!db.gallery_categories) db.gallery_categories = [...DEFAULT_DATABASE.gallery_categories];
         if (!db.gallery_categories.find(c => c.id === id)) {
           db.gallery_categories.push(data[0]);
+          saveLocalDB(db);
+        }
+        return data[0];
+      }
+    }
+    const db = getLocalDB();
+    if (!db.gallery_categories) {
+      db.gallery_categories = [
+        { id: "training", name: "Training Batches" },
+        { id: "kids", name: "Kids Classes" },
+        { id: "competitions", name: "Competitions" },
+        { id: "awards", name: "Awards & Medals" }
+      ];
+    }
+    if (db.gallery_categories.find(c => c.id === id)) {
+      return false;
+    }
+    const newCategory = { id, name };
+    db.gallery_categories.push(newCategory);
+    saveLocalDB(db);
+    return newCategory;
+  },
+
+  // I. YOUTUBE VIDEO SHOWCASE
+  async getYoutubeVideos() {
+    if (USE_SUPABASE && dbClient) {
+      const { data, error } = await dbClient.from('youtube_videos').select('*').order('id', { ascending: true });
+      if (!error) return data;
+    }
+    return getLocalDB().youtube_videos || [];
+  },
+
+  async addYoutubeVideo(video_id, title, desc) {
+    if (USE_SUPABASE && dbClient) {
+      const { data, error } = await dbClient.from('youtube_videos').insert([{ video_id, title, desc }]).select();
+      if (!error && data && data.length > 0) {
+        const db = getLocalDB();
+        db.youtube_videos = db.youtube_videos || [];
+        db.youtube_videos.push(data[0]);
+        saveLocalDB(db);
+        return data[0];
+      }
+    }
+    const db = getLocalDB();
+    const newItem = {
+      id: Date.now(),
+      video_id,
+      title,
+      desc
+    };
+    db.youtube_videos = db.youtube_videos || [];
+    db.youtube_videos.push(newItem);
+    saveLocalDB(db);
+    return newItem;
+  },
+
+  async updateYoutubeVideo(id, video_id, title, desc) {
+    if (USE_SUPABASE && dbClient) {
+      await dbClient.from('youtube_videos').update({ video_id, title, desc }).eq('id', id);
+    }
+    const db = getLocalDB();
+    db.youtube_videos = db.youtube_videos || [];
+    db.youtube_videos = db.youtube_videos.map(v => {
+      if (v.id === parseInt(id)) {
+        return { ...v, video_id, title, desc };
+      }
+      return v;
+    });
+    saveLocalDB(db);
+    return true;
+  },
+
+  async deleteYoutubeVideo(id) {
+    if (USE_SUPABASE && dbClient) {
+      await dbClient.from('youtube_videos').delete().eq('id', id);
+    }
+    const db = getLocalDB();
+    db.youtube_videos = db.youtube_videos || [];
+    db.youtube_videos = db.youtube_videos.filter(v => v.id !== parseInt(id));
+    saveLocalDB(db);
+    return true;
+  }
+};
+
+// Export to window so other scripts (app.js, admin.html) can access it
+window.dbService = dbService;
+window.DEFAULT_DATABASE = DEFAULT_DATABASE;
+window.getLocalDB = getLocalDB;
    
