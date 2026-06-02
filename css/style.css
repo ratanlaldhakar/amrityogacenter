@@ -1745,12 +1745,12 @@ body.light-theme .theme-toggle-btn .fa-moon { display: none; }
   left: 0;
   width: 100%;
   height: 100%;
-  filter: grayscale(1) invert(0.92) contrast(1.1);
+  filter: none;
   transition: filter var(--transition-smooth);
 }
 
 body.light-theme .map-embed-container iframe {
-  filter: grayscale(0.2) contrast(1.0);
+  filter: none;
 }
 
 /* 10. Footer Section */
