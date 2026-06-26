@@ -8,6 +8,10 @@ AMRIT YOGA CENTER - INTERACTIVE SCRIPTING V3
 import { inject } from '@vercel/analytics';
 inject();
 
+// Initialize Vercel Speed Insights
+import { injectSpeedInsights } from '@vercel/speed-insights';
+injectSpeedInsights();
+
 // Premium avatar generation system
 function getAvatarFallbackHTML(name, customClass = "testimonial-avatar") {
   const cleanName = (name || "Anonymous").trim();
