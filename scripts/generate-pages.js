@@ -616,12 +616,21 @@ function buildPageHTML(pageSpec) {
             <i class="fa-solid fa-phone" style="margin-right: 8px; color: var(--color-saffron);"></i>
             <a href="tel:7737773384" style="color: var(--color-text-secondary); text-decoration: none;">+91 7737773384</a>
           </div>
+          <div class="footer-contact-item" style="margin-top: 12px;">
+            <i class="fa-solid fa-envelope" style="margin-right: 8px; color: var(--color-saffron);"></i>
+            <a href="mailto:contact@amrityogacenter.in" style="color: var(--color-text-secondary); text-decoration: none;" id="footer-email-text">contact@amrityogacenter.in</a>
+          </div>
         </div>
       </div>
     </div>
     
-    <div class="footer-bottom" style="text-align: center; padding: 25px 20px; border-top: 1px solid rgba(255, 153, 51, 0.05); color: var(--color-text-secondary); font-size: 0.9rem;">
-      <p>&copy; 2026 Amrit Yoga Center<sup>™</sup>. All Rights Reserved. Designed for Health & Excellence in Bhilwara.</p>
+    <div class="footer-bottom" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; text-align: center; padding: 25px 20px; border-top: 1px solid rgba(255, 153, 51, 0.05); color: var(--color-text-secondary); font-size: 0.9rem;">
+      <p style="margin: 0;">&copy; 2026 Amrit Yoga Center<sup>™</sup>. All Rights Reserved. Designed for Health & Excellence in Bhilwara.</p>
+      <div style="display: flex; gap: 20px; justify-content: center; width: 100%; max-width: fit-content; margin: 0 auto;">
+        <a href="/privacy-policy" style="color: var(--color-saffron); text-decoration: none; font-weight: 500;">Privacy Policy</a>
+        <span style="color: rgba(255,255,255,0.2);">|</span>
+        <a href="/terms-and-conditions" style="color: var(--color-saffron); text-decoration: none; font-weight: 500;">Terms & Conditions</a>
+      </div>
     </div>
   </footer>
 
@@ -1194,7 +1203,7 @@ targetCities.forEach(city => {
       "image": "https://amrityogacenter.in/images/about_hero.jpg",
       "description": metaDesc,
       "telephone": "+91 7737773384",
-      "email": "info@yogamrityoga.com",
+      "email": "contact@amrityogacenter.in",
       "priceRange": "$$",
       "address": {
         "@type": "PostalAddress",

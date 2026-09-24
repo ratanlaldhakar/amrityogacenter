@@ -23,14 +23,14 @@ if (USE_SUPABASE) {
 const DEFAULT_DATABASE = {
   admin_creds: {
     username: "admin",
-    password: "yogamrit@2026"
+    password: "amrit@2026"
   },
   homepage: {
     tagline: "An Ultimate Health, Mind & Soul Resolution",
     phone_primary: "7737773384",
     phone_support: "7597955294",
     address: "3-M-7, 2nd Floor, Near Vinay Stationers, Govt. Hospital Road, Bapunagar, Bhilwara, Rajasthan 311001",
-    email: "info@yogamrityoga.com",
+    email: "contact@amrityogacenter.in",
     insta: '{"insta_username":"@amrityogacenter","insta_url":"https://instagram.com/amrityogacenter","youtube_name":"@amrityogacenter","youtube_url":"https://youtube.com/@amrityogacenter?si=tCfleC7CalYBflIM"}',
     about_image: "images/about_hero.jpg",
     about_image_align: "center",
@@ -828,7 +828,7 @@ const dbService = {
   // G. SECURITY CREDENTIALS
   async getAdminCreds() {
     const db = getLocalDB();
-    return db.admin_creds || { username: "admin", password: "yogamrit@2026" };
+    return db.admin_creds || { username: "admin", password: "amrit@2026" };
   },
 
   async updateAdminCreds(username, password) {

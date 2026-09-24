@@ -1,4 +1,9 @@
-# Local temporary/scratch development files
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+
 check_js_syntax.py
 diagnose.py
 patch_db.py

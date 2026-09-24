@@ -326,7 +326,10 @@ async function renderDynamicContent() {
     footerPhone.textContent = `+91 ${hp.phone_primary}`;
   }
   const footerEmail = document.getElementById("footer-email-text");
-  if (footerEmail) footerEmail.textContent = hp.email;
+  if (footerEmail) {
+    footerEmail.textContent = hp.email;
+    footerEmail.href = `mailto:${hp.email}`;
+  }
   const footerInstaText = document.getElementById("footer-insta-text");
   if (footerInstaText) {
     footerInstaText.textContent = socialData.insta_username;
@@ -1566,10 +1569,14 @@ function initReviewSubmissionSystem() {
 =========================================
 */
 function initTrialBookingSystem() {
+  const emailjsPublicKey = "unI9GpMpWuyCcYJoT";
+  const emailjsServiceId = "service_8sb3twf";
+  const emailjsTemplateId = "template_v12c1d5";
+
   // Initialize EmailJS with Public Key
   if (typeof emailjs !== "undefined") {
     try {
-      emailjs.init("unI9GpMpWuyCcYJoT");
+      emailjs.init(emailjsPublicKey);
       console.log("EmailJS initialized successfully.");
     } catch(e) {
       console.error("EmailJS initialization failed:", e);
@@ -1700,8 +1707,8 @@ function initTrialBookingSystem() {
 
           console.log("Sending EmailJS notification with params:", templateParams);
           await emailjs.send(
-            "service_8sb3twf",
-            "template_v12c1d5",
+            emailjsServiceId,
+            emailjsTemplateId,
             templateParams
           );
           console.log("EmailJS notification sent successfully!");

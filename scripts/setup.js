@@ -34,7 +34,7 @@ async function main() {
 
   const dbPassword = process.env.DB_PASSWORD || (await askQuestion("Enter Supabase Database Password: "));
   const serviceRoleKey = process.env.SERVICE_ROLE_KEY || (await askQuestion("Enter Supabase Service Role Key (secret): "));
-  const adminPassword = process.env.ADMIN_PASSWORD || (await askQuestion("Enter Password for admin@yogamrit.com (default: Admin123!): ")) || "Admin123!";
+  const adminPassword = process.env.ADMIN_PASSWORD || (await askQuestion("Enter Password for admin@amrityogacenter.in (default: Admin123!): ")) || "Admin123!";
 
   rl.close();
 
@@ -81,7 +81,7 @@ async function main() {
       },
     });
 
-    const email = "admin@yogamrit.com";
+    const email = "admin@amrityogacenter.in";
 
     // List users to check if user exists
     const { data: usersData, error: listError } = await adminClient.auth.admin.listUsers();
