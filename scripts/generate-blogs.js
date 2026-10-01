@@ -800,6 +800,10 @@ function buildBlogHTML(art) {
   <meta name="twitter:description" content="${art.metaDesc}">
   <meta name="twitter:image" content="https://amrityogacenter.in/images/logo.png">
 
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6337284992207202"
+     crossorigin="anonymous"></script>
+
   <!-- Stylesheets -->
   <link rel="stylesheet" href="/css/style.css" id="theme-style-path">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1315,6 +1319,10 @@ function buildBlogIndexHTML(articles) {
   <meta property="og:description" content="Explore our library of medically-accurate articles on Hatha foundations, Vinyasa flows, scientific breathing mechanics, meditation, and custom health therapies.">
   <meta property="og:image" content="https://amrityogacenter.in/images/logo.png">
   <meta property="og:url" content="https://amrityogacenter.in/blog">
+
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6337284992207202"
+     crossorigin="anonymous"></script>
 
   <!-- Stylesheets -->
   <link rel="stylesheet" href="/css/style.css" id="theme-style-path">
